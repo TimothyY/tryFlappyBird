@@ -188,7 +188,7 @@ function generatePipeAndScore(deltaS) {
                 }
                 pipe.x = (pipe.x - deltaS * 300);
                 if (pipe.x <= 338 && pipe.rotation == 0 && pipe.name != "counted") {
-                    pipe.name = "counted" //using the pipe name to count pipes
+                    pipe.name = "counted"; //using the pipe name to count pipes
                     scoreCounter.text = scoreCounter.text + 1;
                 }
                 if (pipe.x + pipe.image.width <= -pipe.w) {
