@@ -66,7 +66,6 @@ function gameReady() {
             "regY": 32,
             "count": 3
         },
-        // define two animations, run (loops, 0.21x speed) and dive (returns to dive and holds frame one static):
         "animations": {
             "fly": [0, 2, "fly", 0.21],
             "dive": [1, 1, "dive", 1]
@@ -144,16 +143,15 @@ function dieBird() {
         .to({
             y: bird.y,
             rotation: 90
-        }, 1000, createjs.Ease.linear) //rotate back
+        }, 10000, createjs.Ease.linear) //rotate back
         .to({
             y: ground.y - 30
         }, 100, createjs.Ease.linear); //drop to the bedrock
 }
 
-function generatePipeAndScore(deltaS) {
+function generatePipes(deltaS) {
 
     var gap = 300; //gap for the pipe
-    var l = pipes.getNumChildren();
     if (isGameStarted && !isDead) {
         if (pipeDelay == 0) {
 
@@ -167,7 +165,6 @@ function generatePipeAndScore(deltaS) {
             pipe2.rotation = 180;
             pipe2.x = pipe.x; //+ pipe.image.width
             pipe2.y = pipe.y - gap;
-
             pipes.addChild(pipe2);
 
             pipeDelay = masterPipeDelay;
@@ -175,20 +172,20 @@ function generatePipeAndScore(deltaS) {
         } else {
             pipeDelay = pipeDelay - 1;
         }
+
+        var l = pipes.getNumChildren();
         for (var i = 0; i < l; i++) {
             pipe = pipes.getChildAt(i);
             if (pipe) {
-                if (true) { // tried replacing true with this, but it's off: pipe.x < bird.x + 92 && pipe.x > bird.x 
-                    var collision = ndgmr.checkRectCollision(pipe, bird, 1, true);
-                    if (collision) {
-                        if (collision.width > 30 && collision.height > 30) {
-                            dieBird();
-                        }
+                var collision = ndgmr.checkRectCollision(pipe, bird, 1, true);
+                if (collision) {
+                    if (collision.width > 30 && collision.height > 30) {
+                        dieBird();
                     }
                 }
                 pipe.x = (pipe.x - deltaS * 300);
                 if (pipe.x <= 338 && pipe.rotation == 0 && pipe.name != "counted") {
-                    pipe.name = "counted" //using the pipe name to count pipes
+                    pipe.name = "counted"; //using the pipe name to count pipes
                     scoreCounter.text = scoreCounter.text + 1;
                 }
                 if (pipe.x + pipe.image.width <= -pipe.w) {
@@ -196,27 +193,35 @@ function generatePipeAndScore(deltaS) {
                 }
             }
         }
-        if (isScoreShown) {
-            scoreCounter.alpha = 1;
-            isScoreShown = false;
-        }
+    }
+}
 
+function showScore() {
+    if (isScoreShown) {
+        scoreCounter.alpha = 1;
+        isScoreShown = false;
     }
 }
 
 function handleTick(event) {
-    var deltaS = event.delta / 1000; //event.delta is The time elapsed in ms since the last tick
+    //event.delta is The time elapsed in ms since the last tick
+    var deltaS = event.delta / 1000;
 
+    //dead when touch ground
     if (bird.y > (ground.y - 40)) {
         if (!isDead) dieBird();
     }
 
+    //animate ground
     if (!isDead) {
         console.log("ground.x: " + ground.x + " deltaS: " + deltaS);
-        ground.x = (ground.x - deltaS * 300) % groundTile.width; //deltaS*speed untuk geser, loop berjalan ketika 0%groundTile.width
+        //deltaS*speed untuk geser, loop berjalan ketika 0%groundTile.width
+        ground.x = (ground.x - deltaS * 300) % groundTile.width;
     }
 
-    // generatePipeAndScore(deltaS);
+    generatePipes(deltaS);
+
+    showScore();
 
     stage.update(event);
 }
